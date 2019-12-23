@@ -1,27 +1,82 @@
-import 'package:challenger/login.dart';
+import 'package:challenger/colors.dart';
+import 'package:challenger/user/domain/user.dart';
+import 'package:challenger/user/domain/user_api.dart';
+import 'package:challenger/user/login.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart';
 
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
+  final _appName = 'Challenger';
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
+      debugShowCheckedModeBanner: false,
+      title: _appName,
+      theme: _buildTheme(_buildColorScheme(), _buildTextTheme()),
+      home: MyHomePage(title: _appName),
+    );
+  }
+
+  ThemeData _buildTheme(ColorScheme colorScheme, TextTheme textTheme) {
+    return ThemeData(
+      colorScheme: colorScheme,
+      primaryColor: colorScheme.primary,
+      accentColor: colorScheme.secondary,
+      backgroundColor: colorScheme.background,
+      scaffoldBackgroundColor: colorScheme.background,
+      buttonTheme: ButtonThemeData(
+        textTheme: ButtonTextTheme.primary,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(backgroundColor: colorScheme.secondary, foregroundColor: colorScheme.onSecondary),
+      inputDecorationTheme: InputDecorationTheme(border: OutlineInputBorder(borderRadius: BorderRadius.circular(20))),
+      cardTheme: CardTheme(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
+      dividerColor: kChallengerDivider,
+      textTheme: textTheme,
+      primaryTextTheme: textTheme,
+      accentTextTheme: textTheme
+    );
+  }
+
+  ColorScheme _buildColorScheme() {
+    return ColorScheme.light(
+      primary: kChallengerBlue,
+      primaryVariant: kChallengerDarkBlue,
+      secondary: kChallengerYellow,
+      secondaryVariant: kChallengerLightYellow,
+      surface: kChallengerBackground,
+      background: kChallengerBackground,
+      error: kChallengerError,
+      onPrimary: kChallengerWhite,
+      onSecondary: kChallengerBlack,
+      onSurface: kChallengerBlack,
+      onBackground: kChallengerBlack,
+      onError: kChallengerBlack,
+      brightness: Brightness.light
+    );
+  }
+
+  TextTheme _buildTextTheme() {
+    return TextTheme(
+      display4: GoogleFonts.raleway(fontSize: 98),
+      display3: GoogleFonts.raleway(fontSize: 61),
+      display2: GoogleFonts.raleway(fontSize: 49),
+      display1: GoogleFonts.raleway(fontSize: 35),
+      headline: GoogleFonts.raleway(fontSize: 24),
+      title: GoogleFonts.raleway(fontSize: 20),
+      subhead: GoogleFonts.raleway(fontSize: 16),
+      body2: GoogleFonts.raleway(fontSize: 17),
+      body1: GoogleFonts.raleway(fontSize: 15),
+      caption: GoogleFonts.raleway(fontSize: 13),
+      button: GoogleFonts.raleway(fontSize: 15),
+      subtitle: GoogleFonts.raleway(fontSize: 14),
+      overline: GoogleFonts.raleway(fontSize: 11),
     );
   }
 }
@@ -45,17 +100,28 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  var users = new List<User>();
+  final client = Client();
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  _getUsers() {
+    final userApi = UserApi(client, 'http://192.168.0.106:8080/api');
+    userApi.getAllUsers().then((users) {
+      setState(() {
+        this.users = users;
+      });
+    }).catchError((e) => {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _getUsers();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    client.close();
   }
 
   @override
@@ -73,39 +139,17 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
-        ),
-      ),
+          // Center is a layout widget. It takes a single child and positions it
+          // in the middle of the parent.
+          child: ListView.builder(
+              itemCount: users.length,
+              itemBuilder: (context, index) => ListTile(
+                    title: Text(users[index].username),
+                  ))),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
-              context, MaterialPageRoute(builder: (context) => LoginScreen()));
+              context, MaterialPageRoute(builder: (context) => LoginPage()));
         },
         tooltip: 'Increment',
         child: Icon(Icons.add),
