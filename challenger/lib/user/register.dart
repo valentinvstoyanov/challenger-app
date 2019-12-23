@@ -1,5 +1,6 @@
-import 'dart:developer';
+import 'dart:developer' as dev;
 
+import 'package:challenger/api_error.dart';
 import 'package:challenger/user/domain/user.dart';
 import 'package:challenger/user/domain/user_api.dart';
 import 'package:flutter/material.dart';
@@ -18,129 +19,68 @@ class _RegisterPageState extends State<RegisterPage> {
   final _nameController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  Widget _buildField(String label, TextEditingController controller, {bool isPassword = false}) {
+    return Theme(
+      data: Theme.of(context),
+      child: TextField(
+        obscureText: isPassword,
+        controller: controller,
+        decoration: InputDecoration(labelText: label, border: OutlineInputBorder()),
+      ),
+    );
+  }
+
+  _register(String email, String username, String name, String password) {
+    final client = Client();
+    final userApi = UserApi(client, 'http://192.168.0.106:8080/api');
+    userApi.registerUser(CreateUserRequest(email: email, name: name, password: password, username: username))
+      .then((user) => _emailController.text = user.toString())
+      .catchError(_handleApiError, test: (e) => e is ApiError)
+      .catchError(_handleException, test: (e) => e is Exception);
+  }
+
+  _handleApiError(apiError) {
+    //TODO: show errors
+  }
+
+  _handleException(e, stackTrace) {
+    dev.log("Registration error: ", error: e, stackTrace: stackTrace);
+    //TODO: show unexpected error
+  }
+
   @override
   Widget build(BuildContext context) {
-    final fieldStyle = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
-
-    final emailField = TextField(
-      style: fieldStyle,
-      decoration: InputDecoration(
-          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-          hintText: "Email",
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0))),
-      controller: _emailController,
-    );
-
-    final usernameField = TextField(
-      style: fieldStyle,
-      decoration: InputDecoration(
-          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-          hintText: "Username",
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0))),
-      controller: _usernameController,
-    );
-
-    final nameField = TextField(
-      style: fieldStyle,
-      decoration: InputDecoration(
-          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-          hintText: "Name",
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0))),
-      controller: _nameController,
-    );
-
-    final passwordField = TextField(
-      obscureText: true,
-      style: fieldStyle,
-      decoration: InputDecoration(
-          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-          hintText: "Password",
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0))),
-      controller: _passwordController,
-    );
-
-    final registerButton = Material(
-      elevation: 4.0,
-      borderRadius: BorderRadius.circular(2.0),
-      color: Colors.amber,
-      child: MaterialButton(
-        minWidth: MediaQuery.of(context).size.width,
-        padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        onPressed: () {
-          final client = Client();
-          final userApi = UserApi(client, 'http://192.168.0.106:8080/api');
-          userApi.registerUser(CreateUserRequest(email: _emailController.text,
-              name: _nameController.text,
-              password: _passwordController.text,
-              username: _usernameController.text))
-              .then((user) => _emailController.text = user.toString())
-              .catchError((e) => { log("Registration error: ", error: e)});
-        },
-        child: Text("Sign up",
-            textAlign: TextAlign.center,
-            style: fieldStyle.copyWith(
-                color: Colors.white, fontWeight: FontWeight.bold)),
-      ),
-    );
-
-    final loginButton = Material(
-      elevation: 4.0,
-      borderRadius: BorderRadius.circular(2.0),
-      color: Colors.deepOrangeAccent,
-      child: MaterialButton(
-        minWidth: MediaQuery.of(context).size.width,
-        padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        onPressed: () {
-          Navigator.pop(context);
-        },
-        child: Text("Sign in",
-            textAlign: TextAlign.center,
-            style: fieldStyle.copyWith(
-                color: Colors.white, fontWeight: FontWeight.bold)),
-      ),
-    );
-
     return Scaffold(
-        body: Center(
-      child: SingleChildScrollView(
-        child: Container(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
+        body: SafeArea(
+            child: ListView(
+              padding: EdgeInsets.symmetric(horizontal: 24.0),
               children: <Widget>[
+                SizedBox(height: 40.0),
                 Text(
-                  'Challenger',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 42.0,
-                  ),
+                  "Challenger",
+                  style: Theme.of(context).textTheme.display1,
                 ),
-                SizedBox(height: 32.0),
-                emailField,
-                SizedBox(height: 16.0),
-                usernameField,
-                SizedBox(height: 16.0),
-                nameField,
-                SizedBox(height: 16.0),
-                passwordField,
-                SizedBox(
-                  height: 20.0,
+                SizedBox(height: 50.0),
+                _buildField("Email", _emailController),
+                SizedBox(height: 12.0,),
+                _buildField("Username", _usernameController),
+                SizedBox(height: 12.0,),
+                _buildField("Name", _nameController),
+                SizedBox(height: 12.0,),
+                _buildField("Password", _passwordController, isPassword: true),
+                SizedBox(height: 16.0,),
+                RaisedButton(
+                  child: Text('Sign up'),
+                  elevation: 8.0,
+                  onPressed: () => { _register(_emailController.text, _usernameController.text, _nameController.text, _passwordController.text)}
                 ),
-                registerButton,
-                SizedBox(
-                  height: 20.0,
-                ),
-                loginButton,
-                SizedBox(
-                  height: 15.0,
-                ),
+                FlatButton(
+                    child: Text('Already registered? Sign in'),
+                    onPressed: () => { Navigator.pop(context) }
+                )
               ],
-            ),
-          ),
-        ),
-      ),
-    ));
+            )
+        )
+    );
   }
 }

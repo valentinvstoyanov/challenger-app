@@ -12,7 +12,8 @@ class UserApi {
   UserApi(this.client, this.baseUrl);
 
   Future<User> registerUser(CreateUserRequest request) async {
-    final response = await client.post('$baseUrl/users', headers: {HttpHeaders.contentTypeHeader:'application/json'}, body: json.encode(request));
+    final headers = {HttpHeaders.contentTypeHeader:'application/json'};
+    final response = await client.post('$baseUrl/users', headers: headers, body: json.encode(request));
 
     if (response.statusCode == HttpStatus.created) {
       return User.fromJson(json.decode(response.body));

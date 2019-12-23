@@ -48,17 +48,11 @@ class _LoginPageState extends State<LoginPage> {
           ),
           SizedBox(height: 100.0),
           _buildField("Email or username", _emailOrUsernameController),
-          SizedBox(
-            height: 12.0,
-          ),
+          SizedBox(height: 12.0,),
           _buildField("Password", _passwordController, isPassword: true),
-          SizedBox(
-            height: 16.0,
-          ),
+          SizedBox(height: 16.0,),
           RaisedButton(
-            child: Text(
-              "SIGN IN",
-            ),
+            child: Text('SIGN IN',),
             elevation: 8.0,
             onPressed: () => {_login(_emailOrUsernameController.text, _passwordController.text)},
           ),
