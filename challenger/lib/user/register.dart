@@ -20,17 +20,18 @@ class _RegisterPageState extends State<RegisterPage> {
   final _nameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  var _isPasswordVisible = false;
 
-  Widget _buildField(String label, TextEditingController controller, String Function(String) validator, {bool isPassword = false, int maxLen}) {
-    return Theme(
-      data: Theme.of(context),
-      child: TextFormField(
-        obscureText: isPassword,
-        controller: controller,
-        decoration: InputDecoration(labelText: label, border: OutlineInputBorder()),
-        validator: validator,
-        maxLength: maxLen,
-      ),
+  _togglePasswordVisibility() {
+    setState(() {
+      _isPasswordVisible = !_isPasswordVisible;
+    });
+  }
+
+  IconButton _passwordVisibilityIcon() {
+    return IconButton(
+      icon: Icon(_isPasswordVisible ? Icons.visibility : Icons.visibility_off),
+      onPressed: _togglePasswordVisibility,
     );
   }
 
@@ -45,6 +46,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   _handleApiError(apiError) {
     //TODO: show errors
+
   }
 
   _handleException(e, stackTrace) {
@@ -67,13 +69,38 @@ class _RegisterPageState extends State<RegisterPage> {
                     style: Theme.of(context).textTheme.display1,
                   ),
                   SizedBox(height: 30.0),
-                  _buildField("Email", _emailController, validateEmail),
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: InputDecoration(labelText: "Email", border: OutlineInputBorder(), prefixIcon: Icon(Icons.email)),
+                    validator: validateEmail,
+                  ),
                   SizedBox(height: 12.0,),
-                  _buildField("Username", _usernameController, validateUsername, maxLen: 64),
+                  TextFormField(
+                    controller: _usernameController,
+                    decoration: InputDecoration(labelText: "Username", border: OutlineInputBorder(), prefixIcon: Icon(Icons.person_outline)),
+                    validator: validateUsername,
+                    maxLength: 64,
+                  ),
                   SizedBox(height: 12.0,),
-                  _buildField("Name", _nameController, validateName, maxLen: 128),
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: InputDecoration(labelText: "Name", border: OutlineInputBorder(), prefixIcon: Icon(Icons.person)),
+                    validator: validateName,
+                    maxLength: 128,
+                  ),
                   SizedBox(height: 12.0,),
-                  _buildField("Password", _passwordController, validatePassword, isPassword: true, maxLen: 64),
+                  TextFormField(
+                    obscureText: !_isPasswordVisible,
+                    controller: _passwordController,
+                    decoration: InputDecoration(
+                      labelText: "Password",
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.lock_outline),
+                      suffixIcon: _passwordVisibilityIcon()
+                    ),
+                    validator: validatePassword,
+                    maxLength: 64,
+                  ),
                   SizedBox(height: 16.0,),
                   RaisedButton(
                       child: Text('Sign up'),
