@@ -101,3 +101,42 @@ class CreateUserRequest {
     return 'CreateUserRequest{name: $name, username: $username, email: $email, password: $password}';
   }
 }
+
+class LoginUserRequest {
+  final String emailOrUsername;
+  final String password;
+
+  const LoginUserRequest({this.emailOrUsername, this.password});
+
+  Map<String, dynamic> toJson() {
+    return {
+      'emailOrUsername': this.emailOrUsername,
+      'password': this.password,
+    };
+  }
+
+  factory LoginUserRequest.fromJson(Map<String, dynamic> map) {
+    return new LoginUserRequest(
+      emailOrUsername: map['emailOrUsername'] as String,
+      password: map['password'] as String,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+          other is LoginUserRequest &&
+              runtimeType == other.runtimeType &&
+              emailOrUsername == other.emailOrUsername &&
+              password == other.password;
+
+  @override
+  int get hashCode =>
+      emailOrUsername.hashCode ^
+      password.hashCode;
+
+  @override
+  String toString() {
+    return 'LoginUserRequest{emailOrUsername: $emailOrUsername, password: $password}';
+  }
+}

@@ -26,6 +26,21 @@ class UserApi {
     throw Exception("Unexpected error occured while trying to register new user");
   }
 
+  Future<String> loginUser(LoginUserRequest request) async {
+    final headers = {HttpHeaders.contentTypeHeader:'application/json'};
+    final response = await client.post('$baseUrl/users/login', headers: headers, body: json.encode(request));
+
+    if (response.statusCode == HttpStatus.ok) {
+      return json.decode(response.body)['jwt'];
+    }
+
+    if (response.statusCode == HttpStatus.unauthorized) {
+      throw ApiException(ApiError.fromMap(json.decode(response.body)));
+    }
+
+    throw Exception("Unexpected error occured while trying to login");
+  }
+
   Future<List<User>> getAllUsers() async {
     final response = await client.get('$baseUrl/users');
     if (response.statusCode == HttpStatus.ok) {

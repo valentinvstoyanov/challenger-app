@@ -4,6 +4,11 @@ class ApiException extends IOException {
   final ApiError error;
 
   ApiException(this.error,);
+
+  @override
+  String toString() {
+    return 'ApiException{error: $error}';
+  }
 }
 
 class ApiError {
@@ -20,6 +25,26 @@ class ApiError {
       message: map['message'] as String,
       errors: errors,
     );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+          other is ApiError &&
+              runtimeType == other.runtimeType &&
+              statusCode == other.statusCode &&
+              message == other.message &&
+              errors == other.errors;
+
+  @override
+  int get hashCode =>
+      statusCode.hashCode ^
+      message.hashCode ^
+      errors.hashCode;
+
+  @override
+  String toString() {
+    return 'ApiError{statusCode: $statusCode, message: $message, errors: $errors}';
   }
 }
 
@@ -44,5 +69,25 @@ class ApiSubError {
       reason: map['reason'] as String,
       message: map['message'] as String,
     );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+          other is ApiSubError &&
+              runtimeType == other.runtimeType &&
+              domain == other.domain &&
+              reason == other.reason &&
+              message == other.message;
+
+  @override
+  int get hashCode =>
+      domain.hashCode ^
+      reason.hashCode ^
+      message.hashCode;
+
+  @override
+  String toString() {
+    return 'ApiSubError{domain: $domain, reason: $reason, message: $message}';
   }
 }

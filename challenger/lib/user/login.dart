@@ -1,6 +1,16 @@
+import 'dart:developer' as dev;
+
+import 'package:challenger/user/domain/token_store.dart';
+import 'package:challenger/user/domain/user.dart';
+import 'package:http/http.dart';
 import 'package:challenger/user/register.dart';
 import 'package:challenger/user/validator.dart';
 import 'package:flutter/material.dart';
+
+import 'package:challenger/api_error.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'domain/user_api.dart';
+
 
 class LoginPage extends StatefulWidget {
   @override
@@ -14,10 +24,17 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   var _isPasswordVisible = false;
+  var _isProgressing = false;
 
   _togglePasswordVisibility() {
     setState(() {
       _isPasswordVisible = !_isPasswordVisible;
+    });
+  }
+
+  _toggleProgress() {
+    setState(() {
+      _isProgressing = !_isProgressing;
     });
   }
 
@@ -28,8 +45,34 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  _login(String usernameOrEmail, String password) {
-    Navigator.pop(context);
+  _login(String emailOrUsername, String password) {
+    _toggleProgress();
+    final client = Client();
+    final userApi = UserApi(client, 'http://192.168.0.106:8080/api');
+
+    userApi.loginUser(LoginUserRequest(emailOrUsername: emailOrUsername, password: password))
+        .then((jwt) => _saveJwt(jwt))
+        .catchError(_handleApiError, test: (e) => e is ApiException)
+        .catchError(_handleException, test: (e) => e is Exception)
+        .whenComplete(() => {
+          _toggleProgress(),
+          Navigator.pop(context)
+        });
+  }
+
+  Future<bool> _saveJwt(String jwt) async {
+    dev.log("JWT Token: " + jwt);
+    return TokenStore(await SharedPreferences.getInstance()).saveToken(jwt);
+  }
+
+  _handleApiError(e) {
+    dev.log("Login api exception: ", error: e);
+    //TODO: show errors in each text field
+  }
+
+  _handleException(e, stackTrace) {
+    dev.log("Registration error: ", error: e, stackTrace: stackTrace);
+    //TODO: show unexpected error
   }
 
   @override
@@ -61,7 +104,7 @@ class _LoginPageState extends State<LoginPage> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.perm_identity)
                 ),
-                validator: validateEmail,
+                validator: validateEmailOrUsername,
               ),
               SizedBox(height: 12.0,),
               TextFormField(
@@ -80,8 +123,8 @@ class _LoginPageState extends State<LoginPage> {
               RaisedButton(
                 child: Text('SIGN IN',),
                 elevation: 8.0,
-                onPressed: () => {
-                  if (_formKey.currentState.validate()) {
+                onPressed: _isProgressing ? null : () => {
+                  if (!_isProgressing && _formKey.currentState.validate()) {
                     _login(_emailOrUsernameController.text, _passwordController.text)
                   }
                 },

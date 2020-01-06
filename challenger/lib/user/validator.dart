@@ -29,3 +29,11 @@ String validateUsername(String username) {
 
   return "At least 4 letters, digits, '-', '.' or '_'";
 }
+
+String validateEmailOrUsername(String emailOrUsername) {
+  if (validateEmail(emailOrUsername) == null || validateUsername(emailOrUsername) == null) {
+    return null;
+  }
+
+  return "Doesn't match email or username criteria";
+}

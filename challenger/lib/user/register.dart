@@ -21,10 +21,21 @@ class _RegisterPageState extends State<RegisterPage> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   var _isPasswordVisible = false;
+  var _isProgressing = false;
+  String _emailError;
+  String _usernameError;
+  String _nameError;
+  String _passwordError;
 
   _togglePasswordVisibility() {
     setState(() {
       _isPasswordVisible = !_isPasswordVisible;
+    });
+  }
+
+  _toggleProgress() {
+    setState(() {
+      _isProgressing = !_isProgressing;
     });
   }
 
@@ -35,18 +46,25 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
+  Widget _registerButtonChild() {
+    return _isProgressing
+        ? CircularProgressIndicator()
+        : Text("SIGN UP");
+  }
+
   _register(String email, String username, String name, String password) {
+    _toggleProgress();
     final client = Client();
     final userApi = UserApi(client, 'http://192.168.0.106:8080/api');
     userApi.registerUser(CreateUserRequest(email: email, name: name, password: password, username: username))
       .then((user) => _emailController.text = user.toString())
-      .catchError(_handleApiError, test: (e) => e is ApiError)
-      .catchError(_handleException, test: (e) => e is Exception);
+      .catchError(_handleApiError, test: (e) => e is ApiException)
+      .catchError(_handleException, test: (e) => e is Exception)
+      .whenComplete(() => { _toggleProgress() });
   }
 
-  _handleApiError(apiError) {
-    //TODO: show errors
-
+  _handleApiError(e) {
+    //TODO: show errors in each text field
   }
 
   _handleException(e, stackTrace) {
@@ -71,20 +89,35 @@ class _RegisterPageState extends State<RegisterPage> {
                   SizedBox(height: 30.0),
                   TextFormField(
                     controller: _emailController,
-                    decoration: InputDecoration(labelText: "Email", border: OutlineInputBorder(), prefixIcon: Icon(Icons.email)),
+                    decoration: InputDecoration(
+                      labelText: "Email",
+                      errorText: _emailError,
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.email)
+                    ),
                     validator: validateEmail,
                   ),
                   SizedBox(height: 12.0,),
                   TextFormField(
                     controller: _usernameController,
-                    decoration: InputDecoration(labelText: "Username", border: OutlineInputBorder(), prefixIcon: Icon(Icons.person_outline)),
+                    decoration: InputDecoration(
+                      labelText: "Username",
+                      errorText: _usernameError,
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.person_outline)
+                    ),
                     validator: validateUsername,
                     maxLength: 64,
                   ),
                   SizedBox(height: 12.0,),
                   TextFormField(
                     controller: _nameController,
-                    decoration: InputDecoration(labelText: "Name", border: OutlineInputBorder(), prefixIcon: Icon(Icons.person)),
+                    decoration: InputDecoration(
+                      labelText: "Name",
+                      errorText: _nameError,
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.person)
+                    ),
                     validator: validateName,
                     maxLength: 128,
                   ),
@@ -94,6 +127,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     controller: _passwordController,
                     decoration: InputDecoration(
                       labelText: "Password",
+                      errorText: _passwordError,
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.lock_outline),
                       suffixIcon: _passwordVisibilityIcon()
@@ -103,18 +137,17 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   SizedBox(height: 16.0,),
                   RaisedButton(
-                      child: Text('Sign up'),
+                      child: _registerButtonChild(),
                       elevation: 8.0,
-                      onPressed: () => {
-                        if (_formKey.currentState.validate()) {
-                          _register(_emailController.text, _usernameController.text, _nameController.text,
-                              _passwordController.text)
+                      onPressed: _isProgressing ? null : () => {
+                        if (!_isProgressing && _formKey.currentState.validate()) {
+                          _register(_emailController.text, _usernameController.text, _nameController.text, _passwordController.text)
                         }
                       }
                   ),
                   FlatButton(
                       child: Text('Already registered? Sign in'),
-                      onPressed: () => { Navigator.pop(context)}
+                      onPressed: () => { Navigator.pop(context) }
                   )
                 ],
               )
