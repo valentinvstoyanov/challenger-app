@@ -2,12 +2,12 @@ import 'dart:developer' as dev;
 
 import 'package:challenger/user/domain/token_store.dart';
 import 'package:challenger/user/domain/user.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart';
 import 'package:challenger/user/register.dart';
 import 'package:challenger/user/validator.dart';
 import 'package:flutter/material.dart';
 
-import 'package:challenger/api_error.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'domain/user_api.dart';
 
@@ -51,28 +51,26 @@ class _LoginPageState extends State<LoginPage> {
     final userApi = UserApi(client, 'http://192.168.0.106:8080/api');
 
     userApi.loginUser(LoginUserRequest(emailOrUsername: emailOrUsername, password: password))
-        .then((jwt) => _saveJwt(jwt))
-        .catchError(_handleApiError, test: (e) => e is ApiException)
-        .catchError(_handleException, test: (e) => e is Exception)
-        .whenComplete(() => {
-          _toggleProgress(),
-          Navigator.pop(context)
-        });
+        .then(_saveJwt)
+        .then((isSaved) {
+          if (isSaved) {
+            Navigator.pop(context);
+          } else {
+            throw("Failed to save login token.");
+          }
+        })
+        .catchError(_handleError)
+        .whenComplete(() => { _toggleProgress() });
   }
 
   Future<bool> _saveJwt(String jwt) async {
-    dev.log("JWT Token: " + jwt);
+    dev.log("Saving JWT: " + jwt);
     return TokenStore(await SharedPreferences.getInstance()).saveToken(jwt);
   }
 
-  _handleApiError(e) {
-    dev.log("Login api exception: ", error: e);
-    //TODO: show errors in each text field
-  }
-
-  _handleException(e, stackTrace) {
-    dev.log("Registration error: ", error: e, stackTrace: stackTrace);
-    //TODO: show unexpected error
+  _handleError(e, stackTrace) {
+    dev.log("Login error: ", error: e, stackTrace: stackTrace);
+    Fluttertoast.showToast(msg: "Oops, login failed!");
   }
 
   @override

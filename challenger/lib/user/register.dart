@@ -1,10 +1,10 @@
 import 'dart:developer' as dev;
 
-import 'package:challenger/api_error.dart';
 import 'package:challenger/user/domain/user.dart';
 import 'package:challenger/user/domain/user_api.dart';
 import 'package:challenger/user/validator.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -57,19 +57,14 @@ class _RegisterPageState extends State<RegisterPage> {
     final client = Client();
     final userApi = UserApi(client, 'http://192.168.0.106:8080/api');
     userApi.registerUser(CreateUserRequest(email: email, name: name, password: password, username: username))
-      .then((user) => _emailController.text = user.toString())
-      .catchError(_handleApiError, test: (e) => e is ApiException)
-      .catchError(_handleException, test: (e) => e is Exception)
-      .whenComplete(() => { _toggleProgress() });
+        .then((user) => Navigator.pop(context))
+        .catchError(_handleError)
+        .whenComplete(() => { _toggleProgress()});
   }
 
-  _handleApiError(e) {
-    //TODO: show errors in each text field
-  }
-
-  _handleException(e, stackTrace) {
+  _handleError(e, stackTrace) {
     dev.log("Registration error: ", error: e, stackTrace: stackTrace);
-    //TODO: show unexpected error
+    Fluttertoast.showToast(msg: "Oops, registration failed!");
   }
 
   @override
