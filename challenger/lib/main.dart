@@ -2,6 +2,7 @@ import 'package:challenger/colors.dart';
 import 'package:challenger/user/domain/user.dart';
 import 'package:challenger/user/domain/user_api.dart';
 import 'package:challenger/user/login.dart';
+import 'package:challenger/user/profile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: _appName,
       theme: _buildTheme(_buildColorScheme(), _buildTextTheme()),
-      home: MyHomePage(title: _appName),
+      home: MyHomePage(),
     );
   }
 
@@ -82,7 +83,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key key}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -93,13 +94,12 @@ class MyHomePage extends StatefulWidget {
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
 
-  final String title;
-
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  var _selectedIndex = 0;
   var users = new List<User>();
   final client = Client();
 
@@ -110,6 +110,23 @@ class _MyHomePageState extends State<MyHomePage> {
         this.users = users;
       });
     }).catchError((e) => {});
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  Widget _getChild() {
+    if (_selectedIndex == 2) {
+      return ProfilePage();
+    } else {
+      return ListView.builder(
+          itemCount: users.length,
+          itemBuilder: (context, index) => ListTile(title: Text(users[index].username),)
+      );
+    }
   }
 
   @override
@@ -133,19 +150,11 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
       body: Center(
-          // Center is a layout widget. It takes a single child and positions it
-          // in the middle of the parent.
-          child: ListView.builder(
-              itemCount: users.length,
-              itemBuilder: (context, index) => ListTile(
-                    title: Text(users[index].username),
-                  ))),
+        // Center is a layout widget. It takes a single child and positions it
+        // in the middle of the parent.
+          child: _getChild()
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
@@ -154,6 +163,26 @@ class _MyHomePageState extends State<MyHomePage> {
         tooltip: 'Increment',
         child: Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            title: Text('Home'),
+          ),
+
+          BottomNavigationBarItem(
+            icon: Icon(Icons.school),
+            title: Text('School'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            title: Text('Profile'),
+          ),
+        ],
+        currentIndex: _selectedIndex,
+       // selectedItemColor: Colors.amber[800],
+        onTap: _onItemTapped,
+      ),
     );
   }
 }
