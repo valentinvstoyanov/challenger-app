@@ -41,6 +41,15 @@ class UserApi {
     throw Exception("Unexpected error occured while trying to login");
   }
 
+  Future<User> getUserById(String id) async {
+    final response = await client.get('$baseUrl/users/$id');
+    if (response.statusCode == HttpStatus.ok) {
+      return User.fromJson(json.decode(response.body));
+    }
+
+    throw Exception("Unexpected error occured while trying to get user by id");
+  }
+
   Future<List<User>> getAllUsers() async {
     final response = await client.get('$baseUrl/users');
     if (response.statusCode == HttpStatus.ok) {
