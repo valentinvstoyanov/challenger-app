@@ -1,6 +1,7 @@
 import 'dart:developer' as dev;
 
 import 'package:challenger/settings/settings.dart';
+import 'package:challenger/user/edit_profile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -74,7 +75,9 @@ class _ProfilePageState extends State<ProfilePage> {
                       backgroundImage: NetworkImage('https://i1.wp.com/www.nationalreview.com/wp-content/uploads/2020/03/vladimir-putin-erdogan.jpg?fit=789%2C460&ssl=1'),
                     ),
                     FlatButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfilePage()));
+                        },
                         child: Text("Edit Profile")
                     ),
                   ]
