@@ -28,6 +28,12 @@
 .pub-cache/
 .pub/
 /build/
+/assets/picone.jpeg
+/assets/pictwo.jpeg
+/assets/picthree.jpeg
+/assets/picfour.jpeg
+/assets/picfive.jpeg
+/assets/picsix.jpeg
 
 # Android related
 **/android/**/gradle-wrapper.jar
