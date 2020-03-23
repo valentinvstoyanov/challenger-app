@@ -86,19 +86,17 @@ class CreateUserRequest {
               runtimeType == other.runtimeType &&
               name == other.name &&
               username == other.username &&
-              email == other.email &&
-              password == other.password;
+              email == other.email;
 
   @override
   int get hashCode =>
       name.hashCode ^
       username.hashCode ^
-      email.hashCode ^
-      password.hashCode;
+      email.hashCode;
 
   @override
   String toString() {
-    return 'CreateUserRequest{name: $name, username: $username, email: $email, password: $password}';
+    return 'CreateUserRequest{name: $name, username: $username, email: $email}';
   }
 }
 
@@ -127,16 +125,69 @@ class LoginUserRequest {
       identical(this, other) ||
           other is LoginUserRequest &&
               runtimeType == other.runtimeType &&
-              emailOrUsername == other.emailOrUsername &&
-              password == other.password;
+              emailOrUsername == other.emailOrUsername;
 
   @override
-  int get hashCode =>
-      emailOrUsername.hashCode ^
-      password.hashCode;
+  int get hashCode => emailOrUsername.hashCode;
 
   @override
   String toString() {
-    return 'LoginUserRequest{emailOrUsername: $emailOrUsername, password: $password}';
+    return 'LoginUserRequest{emailOrUsername: $emailOrUsername}';
+  }
+}
+
+class UpdateUser {
+  final String name;
+  final String email;
+  final String username;
+  final String oldPassword;
+  final String newPassword;
+
+  const UpdateUser({
+    this.name,
+    this.email,
+    this.username,
+    this.oldPassword,
+    this.newPassword,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+          other is UpdateUser &&
+              runtimeType == other.runtimeType &&
+              name == other.name &&
+              email == other.email &&
+              username == other.username;
+
+  @override
+  int get hashCode =>
+      name.hashCode ^
+      email.hashCode ^
+      username.hashCode;
+
+  @override
+  String toString() {
+    return 'UpdateUser{name: $name, email: $email, username: $username}';
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': this.name,
+      'email': this.email,
+      'username': this.username,
+      'oldPassword': this.oldPassword,
+      'newPassword': this.newPassword,
+    };
+  }
+
+  factory UpdateUser.fromMap(Map<String, dynamic> map) {
+    return new UpdateUser(
+      name: map['name'] as String,
+      email: map['email'] as String,
+      username: map['username'] as String,
+      oldPassword: map['oldPassword'] as String,
+      newPassword: map['newPassword'] as String,
+    );
   }
 }
