@@ -60,4 +60,19 @@ class UserApi {
 
     throw Exception("Unexpected error occured while trying to get all users");
   }
+
+  Future<User> updateUser(String id, UpdateUser request) async {
+    final headers = {HttpHeaders.contentTypeHeader:'application/json'};
+    final response = await client.post('$baseUrl/users/$id', headers: headers, body: json.encode(request));
+
+    if (response.statusCode == HttpStatus.ok) {
+      return User.fromJson(json.decode(response.body));
+    }
+
+    if (response.statusCode == HttpStatus.badRequest) {
+      throw ApiException(ApiError.fromMap(json.decode(response.body)));
+    }
+
+    throw Exception("Unexpected error occured while trying to update user");
+  }
 }
