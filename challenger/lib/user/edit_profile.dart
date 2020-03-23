@@ -1,5 +1,6 @@
 import 'dart:developer' as dev;
 
+import 'package:challenger/user/change_password.dart';
 import 'package:challenger/user/domain/user.dart';
 import 'package:challenger/user/domain/user_api.dart';
 import 'package:challenger/user/validator.dart';
@@ -18,29 +19,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final _emailController = TextEditingController();
   final _usernameController = TextEditingController();
   final _nameController = TextEditingController();
-  final _oldPasswordController = TextEditingController();
-  final _newPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  var _isNewPasswordVisible = false;
-  var _isOldPasswordVisible = false;
   var _isProgressing = false;
   String _emailError;
   String _usernameError;
   String _nameError;
-  String _newPasswordError;
-  String _oldPasswordError;
-
-  _toggleOldPasswordVisibility() {
-    setState(() {
-      _isOldPasswordVisible = !_isOldPasswordVisible;
-    });
-  }
-
-  _toggleNewPasswordVisibility() {
-    setState(() {
-      _isNewPasswordVisible = !_isNewPasswordVisible;
-    });
-  }
 
   _toggleProgress() {
     setState(() {
@@ -48,24 +31,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
     });
   }
 
-  IconButton _newPasswordVisibilityIcon() {
-    return IconButton(
-      icon: Icon(_isNewPasswordVisible ? Icons.visibility : Icons.visibility_off),
-      onPressed: _toggleOldPasswordVisibility,
-    );
-  }
-
-  IconButton _oldPasswordVisibilityIcon() {
-    return IconButton(
-      icon: Icon(_isOldPasswordVisible ? Icons.visibility : Icons.visibility_off),
-      onPressed: _toggleOldPasswordVisibility,
-    );
-  }
-
   Widget _editButtonChild() {
-    return _isProgressing
-        ? CircularProgressIndicator()
-        : Text("Save");
+    return _isProgressing ? CircularProgressIndicator() : Text("Save");
   }
 
   _handleError(e, stackTrace) {
@@ -83,7 +50,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             child: Form(
                 key: _formKey,
                 child: ListView(
-                  padding: EdgeInsets.symmetric(horizontal: 20.0),
+                  padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
                   children: <Widget>[
                     Padding(
                       padding: EdgeInsets.only(top: 16.0),
@@ -129,45 +96,27 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       validator: validateName,
                       maxLength: 128,
                     ),
-                    SizedBox(height: 12.0,),
-                    TextFormField(
-                      obscureText: !_isOldPasswordVisible,
-                      controller: _oldPasswordController,
-                      decoration: InputDecoration(
-                          labelText: "Password",
-                          errorText: _oldPasswordError,
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.lock_outline),
-                          suffixIcon: _oldPasswordVisibilityIcon()
-                      ),
-                      validator: validatePassword,
-                      maxLength: 64,
-                    ),
-                    SizedBox(height: 12.0,),
-                    TextFormField(
-                      obscureText: !_isNewPasswordVisible,
-                      controller: _newPasswordController,
-                      decoration: InputDecoration(
-                          labelText: "New password",
-                          errorText: _newPasswordError,
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.lock_outline),
-                          suffixIcon: _oldPasswordVisibilityIcon()
-                      ),
-                      validator: validatePassword,
-                      maxLength: 64,
-                    ),
                     SizedBox(height: 16.0,),
-                    RaisedButton(
-                        child: _editButtonChild(),
-                        elevation: 8.0,
-                        onPressed: _isProgressing ? null : () => {
-                          if (!_isProgressing && _formKey.currentState.validate()) {
-                           //edit profile
-                          }
-                        }
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        FlatButton(
+                          child: Text("Change password"),
+                          onPressed: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => ChangePasswordPage()));
+                          },
+                        ),
+                        RaisedButton(
+                            child: _editButtonChild(),
+                            elevation: 8.0,
+                            onPressed: _isProgressing ? null : () => {
+                              if (!_isProgressing && _formKey.currentState.validate()) {
+                                //edit profile
+                              }
+                            }
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 10.0),
                   ],
                 )
             )
