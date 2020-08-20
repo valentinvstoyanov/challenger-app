@@ -6,6 +6,9 @@ import 'package:challenger/user/validator.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'domain/logged_user_store.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   @override
@@ -45,7 +48,7 @@ class _ChangePasswordPage extends State<ChangePasswordPage> {
   IconButton _newPasswordVisibilityIcon() {
     return IconButton(
       icon: Icon(_isNewPasswordVisible ? Icons.visibility : Icons.visibility_off),
-      onPressed: _toggleOldPasswordVisibility,
+      onPressed: _toggleNewPasswordVisibility,
     );
   }
 
@@ -57,7 +60,17 @@ class _ChangePasswordPage extends State<ChangePasswordPage> {
   }
 
   Widget _editButtonChild() {
-    return _isProgressing ? CircularProgressIndicator() : Text("Save");
+    return _isProgressing ? CircularProgressIndicator() : Text("SAVE");
+  }
+
+  _changePassword(String oldPassword, String newPassword) async {
+    _toggleProgress();
+    final userStore = LoggedUserStore(await SharedPreferences.getInstance());
+    final userApi = UserApi('http://192.168.0.106:8080/api', userStore);
+    userApi.updateUser(userStore.getUser().id, UpdateUser(oldPassword: oldPassword, newPassword: newPassword))
+        .then((user) => Navigator.pop(context))
+        .catchError(_handleError)
+        .whenComplete(() => { _toggleProgress()});
   }
 
   _handleError(e, stackTrace) {
@@ -98,7 +111,7 @@ class _ChangePasswordPage extends State<ChangePasswordPage> {
                             errorText: _newPasswordError,
                             border: OutlineInputBorder(),
                             prefixIcon: Icon(Icons.lock_outline),
-                            suffixIcon: _oldPasswordVisibilityIcon()),
+                            suffixIcon: _newPasswordVisibilityIcon()),
                         validator: validatePassword,
                         maxLength: 64,
                       ),
@@ -108,7 +121,7 @@ class _ChangePasswordPage extends State<ChangePasswordPage> {
                           elevation: 8.0,
                           onPressed: _isProgressing ? null : () => {
                             if (!_isProgressing && _formKey.currentState.validate()) {
-                              //edit profile
+                              _changePassword(_oldPasswordController.text, _oldPasswordController.text)
                             }
                           }
                       ),

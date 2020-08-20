@@ -6,7 +6,9 @@ import 'package:challenger/user/domain/user_api.dart';
 import 'package:challenger/user/validator.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'domain/logged_user_store.dart';
 
 class EditProfilePage extends StatefulWidget {
   @override
@@ -32,7 +34,18 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   Widget _editButtonChild() {
-    return _isProgressing ? CircularProgressIndicator() : Text("Save");
+    return _isProgressing ? CircularProgressIndicator() : Text("SAVE");
+  }
+
+
+  _ediProfile(String email, String username, String name) async {
+    _toggleProgress();
+    final userStore = LoggedUserStore(await SharedPreferences.getInstance());
+    final userApi = UserApi('http://192.168.0.106:8080/api', userStore);
+    userApi.updateUser(userStore.getUser().id, UpdateUser(email: email, username: username, name: name))
+        .then((user) => Navigator.pop(context))
+        .catchError(_handleError)
+        .whenComplete(() => { _toggleProgress()});
   }
 
   _handleError(e, stackTrace) {
@@ -103,7 +116,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         FlatButton(
                           child: Text("Change password"),
                           onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => ChangePasswordPage()));
+                            Navigator.pushNamed(context, '/changePassword');
                           },
                         ),
                         RaisedButton(
@@ -111,7 +124,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             elevation: 8.0,
                             onPressed: _isProgressing ? null : () => {
                               if (!_isProgressing && _formKey.currentState.validate()) {
-                                //edit profile
+                                _ediProfile(_emailController.text, _usernameController.text, _nameController.text)
                               }
                             }
                         ),

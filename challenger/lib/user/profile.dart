@@ -1,11 +1,13 @@
 import 'dart:developer' as dev;
 
 import 'package:challenger/settings/settings.dart';
+import 'package:challenger/user/domain/logged_user_store.dart';
 import 'package:challenger/user/edit_profile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'domain/user.dart';
 import 'domain/user_api.dart';
@@ -19,12 +21,11 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   User user;
-  var id = "";
-  final client = Client();
 
-  _getUser() {
-    final userApi = UserApi(client, 'http://192.168.0.106:8080/api');
-    userApi.getUserById(id).then((user) {
+  _getUser() async {
+    final userStore = LoggedUserStore(await SharedPreferences.getInstance());
+    final userApi = UserApi('http://192.168.0.106:8080/api', userStore);
+    userApi.getLoggedUser().then((user) {
       setState(() {
         this.user = user;
       });
@@ -41,21 +42,15 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-    client.close();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(user == null ? "Profile" : user.username),
+        title: Text(user?.username ?? "Profile"),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.settings),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage()));
+              Navigator.pushNamed(context, '/settings');
             },
           ),
         ],
@@ -76,7 +71,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     FlatButton(
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfilePage()));
+                          Navigator.pushNamed(context, '/editProfile');
                         },
                         child: Text("Edit Profile")
                     ),
@@ -85,13 +80,13 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 10.0),
-                child: Text('Vladimir Putin',
+                child: Text(user?.name ?? "",
                   style: Theme.of(context).textTheme.title,
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.only(left:20.0),
-                child: Text('Moscow, RU',
+                child: Text('Sofia',
                   style: Theme.of(context).textTheme.subtitle,
                 ),
               ),

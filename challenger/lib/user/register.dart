@@ -1,11 +1,13 @@
 import 'dart:developer' as dev;
 
+import 'package:challenger/user/domain/logged_user_store.dart';
 import 'package:challenger/user/domain/user.dart';
 import 'package:challenger/user/domain/user_api.dart';
 import 'package:challenger/user/validator.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterPage extends StatefulWidget {
   @override
@@ -52,12 +54,11 @@ class _RegisterPageState extends State<RegisterPage> {
         : Text("SIGN UP");
   }
 
-  _register(String email, String username, String name, String password) {
+  _register(String email, String username, String name, String password) async {
     _toggleProgress();
-    final client = Client();
-    final userApi = UserApi(client, 'http://192.168.0.106:8080/api');
+    final userApi = UserApi('http://192.168.0.106:8080/api', LoggedUserStore(await SharedPreferences.getInstance()));
     userApi.registerUser(CreateUserRequest(email: email, name: name, password: password, username: username))
-        .then((user) => Navigator.pop(context))
+        .then((user) => Navigator.pushNamedAndRemoveUntil(context, '/login', (Route<dynamic> route) => false))
         .catchError(_handleError)
         .whenComplete(() => { _toggleProgress()});
   }

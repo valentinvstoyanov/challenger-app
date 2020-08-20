@@ -1,12 +1,13 @@
 import 'package:challenger/colors.dart';
-import 'package:challenger/user/domain/user.dart';
-import 'package:challenger/user/domain/user_api.dart';
+import 'package:challenger/settings/settings.dart';
+import 'package:challenger/user/change_password.dart';
+import 'package:challenger/user/edit_profile.dart';
 import 'package:challenger/user/login.dart';
 import 'package:challenger/user/profile.dart';
+import 'package:challenger/user/register.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart';
 
 void main() => runApp(MyApp());
 
@@ -20,7 +21,16 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: _appName,
       theme: _buildTheme(_buildColorScheme(), _buildTextTheme()),
-      home: MyHomePage(),
+      //home: MyHomePage(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => MyHomePage(),
+        '/editProfile': (context) => EditProfilePage(),
+        '/changePassword': (context) => ChangePasswordPage(),
+        '/settings': (context) => SettingsPage(),
+        '/login': (context) => LoginPage(),
+        '/register': (context) => RegisterPage(),
+      },
     );
   }
 
@@ -100,17 +110,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   var _selectedIndex = 0;
-  var users = new List<User>();
-  final client = Client();
-
-  _getUsers() {
-    final userApi = UserApi(client, 'http://192.168.0.106:8080/api');
-    userApi.getAllUsers().then((users) {
-      setState(() {
-        this.users = users;
-      });
-    }).catchError((e) => {});
-  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -123,22 +122,10 @@ class _MyHomePageState extends State<MyHomePage> {
       return ProfilePage();
     } else {
       return ListView.builder(
-          itemCount: users.length,
-          itemBuilder: (context, index) => ListTile(title: Text(users[index].username),)
+          itemCount: 0,
+          itemBuilder: (context, index) => ListTile(title: Text(""),)
       );
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _getUsers();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    client.close();
   }
 
   @override
@@ -157,8 +144,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => LoginPage()));
+          Navigator.popAndPushNamed(context, '/login');
         },
         tooltip: 'Increment',
         child: Icon(Icons.add),

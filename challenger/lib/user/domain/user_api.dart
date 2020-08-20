@@ -2,18 +2,20 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:challenger/api_error.dart';
+import 'package:challenger/user/domain/logged_user_store.dart';
 import 'package:challenger/user/domain/user.dart';
-import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
+import 'dart:developer' as dev;
 
 class UserApi {
-  final Client client;
   final String baseUrl;
+  final LoggedUserStore userStore;
 
-  UserApi(this.client, this.baseUrl);
+  UserApi(this.baseUrl, this.userStore);
 
   Future<User> registerUser(CreateUserRequest request) async {
     final headers = {HttpHeaders.contentTypeHeader:'application/json'};
-    final response = await client.post('$baseUrl/users', headers: headers, body: json.encode(request));
+    final response = await http.post('$baseUrl/users', headers: headers, body: json.encode(request));
 
     if (response.statusCode == HttpStatus.created) {
       return User.fromJson(json.decode(response.body));
@@ -26,12 +28,14 @@ class UserApi {
     throw Exception("Unexpected error occured while trying to register new user");
   }
 
-  Future<String> loginUser(LoginUserRequest request) async {
+  Future<bool> loginUser(LoginUserRequest request) async {
     final headers = {HttpHeaders.contentTypeHeader:'application/json'};
-    final response = await client.post('$baseUrl/users/login', headers: headers, body: json.encode(request));
+    final response = await http.post('$baseUrl/users/login', headers: headers, body: json.encode(request));
 
     if (response.statusCode == HttpStatus.ok) {
-      return json.decode(response.body)['jwt'];
+      final userId = json.decode(response.body)['id'];
+      final jwt = json.decode(response.body)['token']['jwt'];
+      return Future.wait([userStore.saveToken(jwt), userStore.saveUserId(userId)]).then((bs) => bs.reduce((b1, b2) => b1 && b2));
     }
 
     if (response.statusCode == HttpStatus.unauthorized) {
@@ -42,7 +46,9 @@ class UserApi {
   }
 
   Future<User> getUserById(String id) async {
-    final response = await client.get('$baseUrl/users/$id');
+    final headers = {HttpHeaders.authorizationHeader:userStore.getToken()};
+    final response = await http.get('$baseUrl/users/$id', headers: headers);
+
     if (response.statusCode == HttpStatus.ok) {
       return User.fromJson(json.decode(response.body));
     }
@@ -50,8 +56,21 @@ class UserApi {
     throw Exception("Unexpected error occured while trying to get user by id");
   }
 
+  Future<User> getLoggedUser() async {
+    final storedUser = userStore.getUser();
+    if (storedUser != null) {
+      return storedUser;
+    }
+
+    final user = getUserById(userStore.getUserId());
+    user.then((user) => userStore.saveUser(user));
+    return user;
+  }
+
   Future<List<User>> getAllUsers() async {
-    final response = await client.get('$baseUrl/users');
+    final headers = {HttpHeaders.authorizationHeader:userStore.getToken()};
+    final response = await http.get('$baseUrl/users', headers: headers);
+
     if (response.statusCode == HttpStatus.ok) {
       final List xs = json.decode(response.body);
       final List<User> users = xs.map((x) => User.fromJson(x)).toList();
@@ -62,8 +81,8 @@ class UserApi {
   }
 
   Future<User> updateUser(String id, UpdateUser request) async {
-    final headers = {HttpHeaders.contentTypeHeader:'application/json'};
-    final response = await client.post('$baseUrl/users/$id', headers: headers, body: json.encode(request));
+    final headers = {HttpHeaders.contentTypeHeader:'application/json', HttpHeaders.authorizationHeader:userStore.getToken()};
+    final response = await http.post('$baseUrl/users/$id', headers: headers, body: json.encode(request));
 
     if (response.statusCode == HttpStatus.ok) {
       return User.fromJson(json.decode(response.body));

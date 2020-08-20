@@ -1,9 +1,8 @@
 import 'dart:developer' as dev;
 
-import 'package:challenger/user/domain/token_store.dart';
+import 'package:challenger/user/domain/logged_user_store.dart';
 import 'package:challenger/user/domain/user.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:http/http.dart';
 import 'package:challenger/user/register.dart';
 import 'package:challenger/user/validator.dart';
 import 'package:flutter/material.dart';
@@ -45,27 +44,19 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  _login(String emailOrUsername, String password) {
+  _login(String emailOrUsername, String password) async {
     _toggleProgress();
-    final client = Client();
-    final userApi = UserApi(client, 'http://192.168.0.106:8080/api');
-
+    final userApi = UserApi('http://192.168.0.106:8080/api', LoggedUserStore(await SharedPreferences.getInstance()));
     userApi.loginUser(LoginUserRequest(emailOrUsername: emailOrUsername, password: password))
-        .then(_saveJwt)
-        .then((isSaved) {
-          if (isSaved) {
-            Navigator.pop(context);
+        .then((success) {
+          if (success) {
+            Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
           } else {
-            throw("Failed to save login token.");
+            throw("Failed to login.");
           }
         })
         .catchError(_handleError)
         .whenComplete(() => { _toggleProgress() });
-  }
-
-  Future<bool> _saveJwt(String jwt) async {
-    dev.log("Saving JWT: " + jwt);
-    return TokenStore(await SharedPreferences.getInstance()).saveToken(jwt);
   }
 
   _handleError(e, stackTrace) {
@@ -129,7 +120,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               FlatButton(
                   child: Text("Don't have an account? Create one"),
-                  onPressed: () => {Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterPage()))},
+                  onPressed: () => {Navigator.pushNamed(context, '/register')},
               )
             ],
           )
