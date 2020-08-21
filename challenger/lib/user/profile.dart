@@ -71,7 +71,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     FlatButton(
                         onPressed: () {
-                          Navigator.pushNamed(context, '/editProfile');
+                          Navigator.pushNamed(context, '/editProfile').then((b) { if (b) {_getUser();}});
                         },
                         child: Text("Edit Profile")
                     ),

@@ -60,7 +60,7 @@ class _ChangePasswordPage extends State<ChangePasswordPage> {
   }
 
   Widget _editButtonChild() {
-    return _isProgressing ? CircularProgressIndicator() : Text("SAVE");
+    return _isProgressing ? CircularProgressIndicator() : Text("Save");
   }
 
   _changePassword(String oldPassword, String newPassword) async {
@@ -121,7 +121,7 @@ class _ChangePasswordPage extends State<ChangePasswordPage> {
                           elevation: 8.0,
                           onPressed: _isProgressing ? null : () => {
                             if (!_isProgressing && _formKey.currentState.validate()) {
-                              _changePassword(_oldPasswordController.text, _oldPasswordController.text)
+                              _changePassword(_oldPasswordController.text, _newPasswordController.text)
                             }
                           }
                       ),

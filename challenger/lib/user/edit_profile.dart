@@ -34,7 +34,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   Widget _editButtonChild() {
-    return _isProgressing ? CircularProgressIndicator() : Text("SAVE");
+    return _isProgressing ? CircularProgressIndicator() : Text("Save");
   }
 
 
@@ -43,7 +43,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final userStore = LoggedUserStore(await SharedPreferences.getInstance());
     final userApi = UserApi('http://192.168.0.106:8080/api', userStore);
     userApi.updateUser(userStore.getUser().id, UpdateUser(email: email, username: username, name: name))
-        .then((user) => Navigator.pop(context))
+        .then((user) => {
+          userStore.saveUser(user),
+          Navigator.pop(context, true)
+        })
         .catchError(_handleError)
         .whenComplete(() => { _toggleProgress()});
   }
@@ -51,6 +54,31 @@ class _EditProfilePageState extends State<EditProfilePage> {
   _handleError(e, stackTrace) {
     dev.log("Edit profile error: ", error: e, stackTrace: stackTrace);
     Fluttertoast.showToast(msg: "Oops, something went wrong!");
+  }
+
+  _updateUserInfo(User user) {
+    setState(() {
+      _emailController.text = user.email;
+      _usernameController.text = user.username;
+      _nameController.text = user.name;
+    });
+  }
+
+  _populateViews() async {
+    final userStore = LoggedUserStore(await SharedPreferences.getInstance());
+    final userApi = UserApi('http://192.168.0.106:8080/api', userStore);
+    userApi.getLoggedUser()
+        .then((user) => _updateUserInfo(user))
+        .catchError((e, stackTrace) {
+          dev.log("Failed to get current user by id", error: e, stackTrace: stackTrace);
+          Fluttertoast.showToast(msg: "Oops, something went wrong!");
+        });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _populateViews();
   }
 
   @override

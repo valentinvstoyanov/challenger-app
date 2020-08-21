@@ -63,7 +63,7 @@ class UserApi {
     }
 
     final user = getUserById(userStore.getUserId());
-    user.then((user) => userStore.saveUser(user));
+    user.then((u) => userStore.saveUser(u));
     return user;
   }
 
@@ -82,12 +82,17 @@ class UserApi {
 
   Future<User> updateUser(String id, UpdateUser request) async {
     final headers = {HttpHeaders.contentTypeHeader:'application/json', HttpHeaders.authorizationHeader:userStore.getToken()};
-    final response = await http.post('$baseUrl/users/$id', headers: headers, body: json.encode(request));
+    final response = await http.put('$baseUrl/users/$id', headers: headers, body: json.encode(request));
+
+    dev.log("update pwd");
 
     if (response.statusCode == HttpStatus.ok) {
+      dev.log("update ${request.oldPassword} ${request.newPassword}");
       return User.fromJson(json.decode(response.body));
     }
 
+
+    dev.log("update pwd1");
     if (response.statusCode == HttpStatus.badRequest) {
       throw ApiException(ApiError.fromMap(json.decode(response.body)));
     }

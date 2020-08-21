@@ -13,7 +13,7 @@ class User {
       'name': this.name,
       'username': this.username,
       'email': this.email,
-      'createdAt': this.createdAt,
+      'createdAt': this.createdAt.toIso8601String(),
     };
   }
 
@@ -171,7 +171,7 @@ class UpdateUser {
     return 'UpdateUser{name: $name, email: $email, username: $username}';
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
       'name': this.name,
       'email': this.email,
@@ -181,7 +181,7 @@ class UpdateUser {
     };
   }
 
-  factory UpdateUser.fromMap(Map<String, dynamic> map) {
+  factory UpdateUser.fromJson(Map<String, dynamic> map) {
     return new UpdateUser(
       name: map['name'] as String,
       email: map['email'] as String,
