@@ -4,6 +4,7 @@ import 'package:challenger/challenges/challenge_validator.dart';
 import 'package:challenger/challenges/domain/challenge.dart';
 import 'package:challenger/users/domain/logged_user_store.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,7 +21,7 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
-  double _difficultySliderValue = 5;
+  double _difficultyValue = 1;
   var _isProgressing = false;
 
   _toggleProgress() {
@@ -86,20 +87,20 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
                 ),
                 SizedBox(height: 12.0,),
                 Text(
-                  "Starting difficulty: ${_difficultySliderValue.round()}",
+                  "Starting difficulty",
                   style: Theme.of(context).textTheme.body1,
                 ),
-                Slider(
-                  value: _difficultySliderValue,
-                  min: 1,
-                  max: 10,
-                  divisions: 9,
-                  label: _difficultySliderValue.round().toString(),
-                  onChanged: (double value) {
-                    setState(() {
-                      _difficultySliderValue = value;
-                    });
-                  },
+                RatingBar(
+                  initialRating: _difficultyValue,
+                  itemCount: 5,
+                  allowHalfRating: true,
+                  minRating: 0,
+                  maxRating: 5,
+                  onRatingUpdate: (rating) => _difficultyValue = rating,
+                  itemBuilder: (context, index) => Icon(
+                    Icons.star,
+                    color: Colors.amber,
+                  ),
                 ),
                 SizedBox(height: 12.0,),
                 RaisedButton(
@@ -107,7 +108,7 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
                   elevation: 8.0,
                   onPressed: _isProgressing ? null : () => {
                     if (!_isProgressing && _formKey.currentState.validate()) {
-                      _createChallenge(_nameController.text, _descriptionController.text, _difficultySliderValue)
+                      _createChallenge(_nameController.text, _descriptionController.text, _difficultyValue)
                     }
                   },
                 ),
