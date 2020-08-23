@@ -1,9 +1,9 @@
+import 'package:challenger/challenges/challenge_validator.dart';
 import 'package:flutter/material.dart';
 
 class CreateChallengePage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    // TODO: implement createState
     return new _CreateChallengePageState();
   }
 }
@@ -36,7 +36,7 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
                       labelText: "Name",
                       border: OutlineInputBorder(),
                   ),
-                  validator: null,
+                  validator: validateName,
                 ),
                 SizedBox(height: 12.0,),
                 TextFormField(
@@ -46,7 +46,7 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
                     labelText: "Description",
                     border: OutlineInputBorder(),
                   ),
-                  //validator: null,
+                  validator: validateDescription,
                 ),
                 SizedBox(height: 12.0,),
                 Text(
