@@ -1,4 +1,5 @@
 import 'package:challenger/challenges/create_challenge.dart';
+import 'package:challenger/challenges/detail_challenge.dart';
 import 'package:challenger/challenges/list_challenges.dart';
 import 'package:challenger/colors.dart';
 import 'package:challenger/settings/settings.dart';
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
         '/settings': (context) => SettingsPage(),
         '/login': (context) => LoginPage(),
         '/register': (context) => RegisterPage(),
+        '/detailChallenge': (context) => DetailChallengePage(),
       },
     );
   }

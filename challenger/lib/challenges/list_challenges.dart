@@ -31,6 +31,9 @@ class _ListChallengesPageState extends State<ListChallengesPage> {
           challenge.description,
           style: Theme.of(context).textTheme.subtitle,
         ),
+        onTap: () {
+          Navigator.pushNamed(context, '/detailChallenge', arguments: challenge.id);
+        },
       );
 
   ListView _challengesListView(List<Challenge> challenges) =>
