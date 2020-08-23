@@ -27,4 +27,17 @@ class ChallengeApi {
 
     throw Exception("Unexpected error occured while trying to create new challenge");
   }
+
+  Future<List<Challenge>> getAllChallenges() async {
+    final headers = {HttpHeaders.authorizationHeader:userStore.getToken()};
+    final response = await http.get('$baseUrl/challenges', headers: headers);
+
+    if (response.statusCode == HttpStatus.ok) {
+      final List xs = json.decode(response.body);
+      final List<Challenge> users = xs.map((x) => Challenge.fromJson(x)).toList();
+      return users;
+    }
+
+    throw Exception("Unexpected error occured while trying to get all users");
+  }
 }
