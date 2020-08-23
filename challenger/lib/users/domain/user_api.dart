@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:challenger/api_error.dart';
-import 'package:challenger/user/domain/logged_user_store.dart';
-import 'package:challenger/user/domain/user.dart';
+import 'package:challenger/users/domain/logged_user_store.dart';
+import 'package:challenger/users/domain/user.dart';
 import 'package:http/http.dart' as http;
 import 'dart:developer' as dev;
 

@@ -1,8 +1,8 @@
 import 'dart:developer' as dev;
 
 import 'package:challenger/settings/settings.dart';
-import 'package:challenger/user/domain/logged_user_store.dart';
-import 'package:challenger/user/edit_profile.dart';
+import 'package:challenger/users/domain/logged_user_store.dart';
+import 'package:challenger/users/edit_profile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';

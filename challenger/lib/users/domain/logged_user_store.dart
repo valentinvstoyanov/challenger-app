@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:challenger/user/domain/user.dart';
+import 'package:challenger/users/domain/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoggedUserStore {

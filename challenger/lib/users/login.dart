@@ -1,10 +1,10 @@
 import 'dart:developer' as dev;
 
-import 'package:challenger/user/domain/logged_user_store.dart';
-import 'package:challenger/user/domain/user.dart';
+import 'package:challenger/users/domain/logged_user_store.dart';
+import 'package:challenger/users/domain/user.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:challenger/user/register.dart';
-import 'package:challenger/user/validator.dart';
+import 'package:challenger/users/register.dart';
+import 'package:challenger/users/user_validator.dart';
 import 'package:flutter/material.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';

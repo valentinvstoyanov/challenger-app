@@ -1,6 +1,6 @@
 import 'dart:developer' as dev;
 
-import 'package:challenger/user/domain/logged_user_store.dart';
+import 'package:challenger/users/domain/logged_user_store.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';

@@ -1,8 +1,8 @@
 import 'dart:developer' as dev;
 
-import 'package:challenger/user/domain/user.dart';
-import 'package:challenger/user/domain/user_api.dart';
-import 'package:challenger/user/validator.dart';
+import 'package:challenger/users/domain/user.dart';
+import 'package:challenger/users/domain/user_api.dart';
+import 'package:challenger/users/user_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart';

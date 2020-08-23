@@ -1,10 +1,11 @@
+import 'package:challenger/challenges/create_challenge.dart';
 import 'package:challenger/colors.dart';
 import 'package:challenger/settings/settings.dart';
-import 'package:challenger/user/change_password.dart';
-import 'package:challenger/user/edit_profile.dart';
-import 'package:challenger/user/login.dart';
-import 'package:challenger/user/profile.dart';
-import 'package:challenger/user/register.dart';
+import 'package:challenger/users/change_password.dart';
+import 'package:challenger/users/edit_profile.dart';
+import 'package:challenger/users/login.dart';
+import 'package:challenger/users/profile.dart';
+import 'package:challenger/users/register.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -118,14 +119,16 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _getChild() {
+    if (_selectedIndex == 1) {
+      return CreateChallengePage();
+    }
     if (_selectedIndex == 2) {
       return ProfilePage();
-    } else {
-      return ListView.builder(
-          itemCount: 0,
-          itemBuilder: (context, index) => ListTile(title: Text(""),)
-      );
     }
+    return ListView.builder(
+        itemCount: 0,
+        itemBuilder: (context, index) => ListTile(title: Text(""),)
+    );
   }
 
   @override
