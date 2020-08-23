@@ -1,4 +1,5 @@
 import 'package:challenger/challenges/create_challenge.dart';
+import 'package:challenger/challenges/list_challenges.dart';
 import 'package:challenger/colors.dart';
 import 'package:challenger/settings/settings.dart';
 import 'package:challenger/users/change_password.dart';
@@ -119,12 +120,18 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _getChild() {
+    if (_selectedIndex == 0) {
+      return ListChallengesPage();
+    }
+
     if (_selectedIndex == 1) {
       return CreateChallengePage();
     }
+
     if (_selectedIndex == 2) {
       return ProfilePage();
     }
+
     return ListView.builder(
         itemCount: 0,
         itemBuilder: (context, index) => ListTile(title: Text(""),)
