@@ -3,7 +3,7 @@ String validateName(String name) {
     return null;
   }
 
-  return "Should be at least 4 and at most 64 characters long";
+  return "4 to 64 characters expected";
 }
 
 String validateDescription(String description) {
@@ -11,5 +11,5 @@ String validateDescription(String description) {
     return null;
   }
 
-  return "Should be at least 8 and at most 256 characters long";
+  return "8 to 256 characters expected";
 }

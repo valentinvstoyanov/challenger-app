@@ -1,5 +1,13 @@
+import 'dart:developer' as dev;
+
 import 'package:challenger/challenges/challenge_validator.dart';
+import 'package:challenger/challenges/domain/challenge.dart';
+import 'package:challenger/users/domain/logged_user_store.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'domain/challenge_api.dart';
 
 class CreateChallengePage extends StatefulWidget {
   @override
@@ -26,7 +34,20 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
   }
 
   _createChallenge(String name, String description, double difficulty) async {
+    _toggleProgress();
+    final userStore = LoggedUserStore(await SharedPreferences.getInstance());
+    final challengeApi = ChallengeApi('http://192.168.0.106:8080/api', userStore);
+    final challengeRequest = CreateChallenge(name: name, description: description, difficulty: difficulty, createdBy: userStore.getUserId());
+    challengeApi.createChallenge(challengeRequest).then((challenge) => {
+      //TODO: maybe navigate to the created challenge detail page.
+      Fluttertoast.showToast(msg: "Challenge successfully created!"),
+    }).catchError(_handleError)
+      .whenComplete(() => { _toggleProgress()});
+  }
 
+  _handleError(e, stackTrace) {
+    dev.log("Create challenge error: ", error: e, stackTrace: stackTrace);
+    Fluttertoast.showToast(msg: "Oops, something went wrong!");
   }
 
   @override
