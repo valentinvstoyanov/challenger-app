@@ -61,3 +61,53 @@ class Challenge {
     return 'Challenge{id: $id, name: $name, description: $description, difficulty: $difficulty, popularity: $popularity, isCompleted: $isCompleted, completedBy: $completedBy, createdBy: $createdBy, createdAt: $createdAt}';
   }
 }
+
+class CreateChallenge {
+  final String name;
+  final String description;
+  final double difficulty;
+  final String createdBy;
+
+  const CreateChallenge({
+    this.name,
+    this.description,
+    this.difficulty,
+    this.createdBy,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': this.name,
+      'description': this.description,
+      'difficulty': this.difficulty,
+      'createdBy': this.createdBy,
+    };
+  }
+
+  factory CreateChallenge.fromJson(Map<String, dynamic> map) {
+    return new CreateChallenge(
+      name: map['name'] as String,
+      description: map['description'] as String,
+      difficulty: map['difficulty'] as double,
+      createdBy: map['createdBy'] as String,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CreateChallenge &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          description == other.description &&
+          difficulty == other.difficulty &&
+          createdBy == other.createdBy;
+
+  @override
+  int get hashCode => name.hashCode ^ description.hashCode ^ difficulty.hashCode ^ createdBy.hashCode;
+
+  @override
+  String toString() {
+    return 'CreateChallenge{name: $name, description: $description, difficulty: $difficulty, createdBy: $createdBy}';
+  }
+}
