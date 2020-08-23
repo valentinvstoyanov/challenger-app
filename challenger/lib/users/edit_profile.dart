@@ -37,7 +37,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return _isProgressing ? CircularProgressIndicator() : Text("Save");
   }
 
-
   _ediProfile(String email, String username, String name) async {
     _toggleProgress();
     final userStore = LoggedUserStore(await SharedPreferences.getInstance());

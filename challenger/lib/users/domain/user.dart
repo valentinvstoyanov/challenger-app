@@ -32,19 +32,10 @@ class User {
       identical(this, other) ||
           other is User &&
               runtimeType == other.runtimeType &&
-              id == other.id &&
-              name == other.name &&
-              username == other.username &&
-              email == other.email &&
-              createdAt == other.createdAt;
+              id == other.id;
 
   @override
-  int get hashCode =>
-      id.hashCode ^
-      name.hashCode ^
-      username.hashCode ^
-      email.hashCode ^
-      createdAt.hashCode;
+  int get hashCode => id.hashCode;
 
   @override
   String toString() {

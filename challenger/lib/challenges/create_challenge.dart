@@ -13,6 +13,21 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
   double _difficultySliderValue = 5;
+  var _isProgressing = false;
+
+  _toggleProgress() {
+    setState(() {
+      _isProgressing = !_isProgressing;
+    });
+  }
+
+  Widget _createButtonChild() {
+    return _isProgressing ? CircularProgressIndicator() : Text("Create");
+  }
+
+  _createChallenge(String name, String description, double difficulty) async {
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,10 +82,12 @@ class _CreateChallengePageState extends State<CreateChallengePage> {
                 ),
                 SizedBox(height: 12.0,),
                 RaisedButton(
-                  child: Text('Create',),
+                  child: _createButtonChild(),
                   elevation: 8.0,
-                  onPressed: () => {
-
+                  onPressed: _isProgressing ? null : () => {
+                    if (!_isProgressing && _formKey.currentState.validate()) {
+                      _createChallenge(_nameController.text, _descriptionController.text, _difficultySliderValue)
+                    }
                   },
                 ),
               ]
