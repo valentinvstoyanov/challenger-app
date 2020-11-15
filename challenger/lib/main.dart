@@ -156,7 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.popAndPushNamed(context, '/login');
+          Navigator.pushReplacementNamed(context, '/login');
         },
         tooltip: 'Increment',
         child: Icon(Icons.add),
